@@ -13,7 +13,7 @@ async def read_root():
 fake_item_id = [{"Item Name": "Foo"}, {"Item Name": "Bar"}, {"Item Name": "Baz"}]
 
 @app.get("/items/")
-async def get_items(skip: int = 0, limit:int = 10):
+async def get_items(skip: int = 0, limit: int = 10):
     return fake_item_id[skip : skip + limit]
 
 """The query is the set of key-value pairs that go after the ? in a URL,

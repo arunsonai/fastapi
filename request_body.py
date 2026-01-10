@@ -29,7 +29,7 @@ class Item(BaseModel):
 async def get_root():
     return {"message": "Hello Request Body!"}
 
-@app.post("/items")
+@app.post("/items/")
 async def get_items(item: Item):
     return item
 

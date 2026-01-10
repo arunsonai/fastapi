@@ -123,7 +123,7 @@ class ModelName(str, Enum):
 async def get_model(model_name: ModelName):
     if model_name == ModelName.alexnet: # We can compare it with the enumeration member in our created enum ModelName:
         return {"Model Name": model_name, "message": "Best CV model"} # The value of the path parameter will be an enumeration member.
-    elif model_name.value == "LeNet":
+    if model_name.value == "LeNet":
         return {"Model Name": model_name, "message": "Developed by Yann LeCun"}
     return ModelName.resnet.value, {"message": "Residual Network"}
 """We can get the actual value (a str in this case) using model_name.value, or in general, our_enum_member.value:"""
