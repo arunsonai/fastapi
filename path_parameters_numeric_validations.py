@@ -71,3 +71,49 @@ async def get_pets(*, pet_id: int = Path(title= "Order Not Matter"), q: str):
     if q:
         results.update({"Query" : q})
     return results
+
+"""Number validations: greater than or equal¶
+With Query and Path (and others you'll see later) you can declare number constraints.
+
+Here, with ge=1, item_id will need to be an integer number "greater than or equal" to 1."""
+
+@app.get("/numvals/{num_id}")
+async def get_vals(num_id: Annotated[int, Path(title="Number Validations", ge=24)],
+                   q: Annotated[str | None, Query(alias="check", min_length=3)] = None):
+    results = {"Number ID" : num_id}
+    if q:
+        results.update({"Query Params" : q})
+    return results
+
+"""Number validations: greater than and less than or equal¶
+The same applies for:
+
+gt: greater than
+le: less than or equal"""
+
+@app.get("/numequals/{num_id}")
+async def get_vals(num_id: Annotated[int, Path(title="Number Validations", ge=0, le=1000)],
+                   q: Annotated[str | None, Query(alias="check", min_length=3)] = None):
+    results = {"Number ID" : num_id}
+    if q:
+        results.update({"Query Params" : q})
+    return results
+
+"""Number validations: floats, greater than and less than¶
+Number validations also work for float values.
+
+Here's where it becomes important to be able to declare gt and not just ge.
+As with it you can require, for example, that a value must be greater than 0, even if it is less than 1.
+
+So, 0.5 would be a valid value. But 0.0 or 0 would not. And the same for lt."""
+
+@app.get("/numops/{num_id}")
+async def get_vals(num_id: Annotated[int, Path(title="Number Validations", ge=0, le=1000)],
+                   q: str,
+                   size: Annotated[float, Query(gt=0.5, lt=10.99)]):
+    results = {"Number ID" : num_id}
+    if q:
+        results.update({"Query Params" : q})
+    if size:
+        results.update({"Sizes" : size})
+    return results
