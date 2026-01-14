@@ -19,12 +19,31 @@ Declare the query parameters that you need in a Pydantic model, and then declare
 
 class FilterParams(BaseModel):
     limit: int = Field(100, gt=0, le=100)
-    offset: int =  Field(0, ge=0)
+    offset: int = Field(0, ge=0)
+    order_by: Literal["created_at", "update_at"] = "created_at"
+    tags: list[str] = str
+
+@app.get("/items/")
+async def get_items(filter_params: Annotated[FilterParams, Query()]):
+    return filter_params
+
+"""Forbid Extra Query Parameters¶
+In some special use cases (probably not very common), you might want to restrict the query parameters that you want to receive.
+
+You can use Pydantic's model configuration to forbid any extra fields:"""
+
+class ForbidExtra(BaseModel):
+    model_config = {"extra" : "forbid"}
+    limit: int = Field(100, gt=0, le=100)
+    offset: int = Field(0, ge=0)
     order_by: Literal["created_at", "updated_at"] = "created_at"
     tags: list[str] = []
 
-@app.get("/items/")
-async def get_items(filter_query: Annotated[FilterParams, Query()]):
-    return filter_query
+@app.get("/forbidextra/")
+async def forbid_extra(forbid: Annotated[ForbidExtra, Query()]):
+    return forbid
+
+
+
 
 
