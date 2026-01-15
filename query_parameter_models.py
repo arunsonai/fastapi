@@ -43,6 +43,16 @@ class ForbidExtra(BaseModel):
 async def forbid_extra(forbid: Annotated[ForbidExtra, Query()]):
     return forbid
 
+"""If a client tries to send some extra data in the query parameters, they will receive an error response.
+
+For example, if the client tries to send a item1 query parameter with a value of Foo, like:
+
+http://127.0.0.1:8000/forbidextra/?limit=11&offset=20&order_by=updated_at&tags=Gemini&tags=OpenAI&item1=Foo
+
+They will receive an error response telling them that the query parameter item1 is not allowed as:
+
+{"detail":[{"type":"extra_forbidden","loc":["query","item1"],"msg":"Extra inputs are not permitted","input":"Foo"}]}"""
+
 
 
 
