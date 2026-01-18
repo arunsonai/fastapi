@@ -99,7 +99,7 @@ class Item(BaseModel):
     tags: set[str] = set()
     image: Image | None = None
 
-@app.put("items/{item_id}")
+@app.put("/items/{item_id}")
 async def update_item(item_id: str, item: Item):
     results = {"Item_ID" : item_id, "Item Details" : item}
     return results
