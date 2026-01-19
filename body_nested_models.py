@@ -407,9 +407,46 @@ Response Body:
 If the top level value of the JSON body you expect is a JSON array (a Python list),
 you can declare the type in the parameter of the function, the same as in Pydantic models:"""
 
-@app.post("/images/{multiple}")
+@app.post("/images/multiple/")
 async def get_images(fimage: list[ModImage]):
     return fimage
+
+"""The output would be as below for the above code
+Request URL:
+http://127.0.0.1:8001/images/multiple/
+
+Request Body:
+[
+  {
+    "url": "https://facebook.com/",
+    "name": "Facebook"
+  },
+ {
+    "url": "https://Twitter.com/",
+    "name": "X"
+  },
+ {
+    "url": "https://flipkart.com/",
+    "name": "Flipkart"
+  }
+]
+
+Response Body:
+[
+  {
+    "url": "https://facebook.com/",
+    "name": "Facebook"
+  },
+  {
+    "url": "https://twitter.com/",
+    "name": "X"
+  },
+  {
+    "url": "https://flipkart.com/",
+    "name": "Flipkart"
+  }
+]
+"""
 
 """Bodies of arbitrary dicts¶
 You can also declare a body as a dict with keys of some type and values of some other type.
