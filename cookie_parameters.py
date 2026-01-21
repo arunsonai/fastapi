@@ -14,5 +14,5 @@ async def get_root():
     return {"message" : "Hello Cookie Parameters"}
 
 @app.get("/cookiedata/")
-async def get_data(cookieparam: Annotated[str | None, Cookie()] = None):
-    return {"Message" : cookieparam}
+async def get_data(ads_id: Annotated[str | None, Cookie()] = None):
+    return {"Message" : ads_id}
