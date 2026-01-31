@@ -218,3 +218,107 @@ async def get_portal(webindex: bool = True) -> Response | dict:
 
 """This will make FastAPI skip the response model generation and that way you can have any
 return type annotations you need without it affecting your FastAPI application."""
+
+
+"""Response Model encoding parameters¶
+Your response model could have default values, like:"""
+
+class Boilers(BaseModel):
+    name: str
+    description: str | None = None
+    price: float
+    tax: float = 66.6
+    tags: list[str] = []
+
+items = {
+    "foo" : {"name" : "Murugan", "price" : 666666},
+    "bar" : {"name" : "Kumaran", "description" : "God Of War", "price" : 666666, "tax" : 66.6666},
+    "baz" : {"name" : "Shanmugar", "description" : "God Of War", "price" : 666666, "tax" : 66.6666, "tags" : ["Kandha", "Kadamba", "Kathirvela"]}
+}
+@app.get("/boiler/{boiler_id}", response_model=Boilers, response_model_exclude_unset=True)
+async def get_names(boiler_id: str):
+    return items[boiler_id]
+
+"""
+description: str | None = None has a default of None.
+tax: float = 10.5 has a default of 10.5.
+tags: List[str] = [] has a default of an empty list: [].
+but you might want to omit them from the result if they were not actually stored.
+
+For example, if you have models with many optional attributes in a NoSQL database, but you don't want to
+send very long JSON responses full of default values.
+
+Use the response_model_exclude_unset parameter¶
+You can set the path operation decorator parameter response_model_exclude_unset=True.
+
+and those default values won't be included in the response, only the values actually set.
+
+So, if you send a request to that path operation for the item with ID foo, the response (not including default values) will be:
+
+{
+    "name": "Foo",
+    "price": 50.2
+}
+
+You can also use:
+
+response_model_exclude_defaults=True
+response_model_exclude_none=True
+as described in the Pydantic docs for exclude_defaults and exclude_none.
+"""
+
+
+"""response_model_include and response_model_exclude¶
+You can also use the path operation decorator parameters response_model_include and response_model_exclude.
+
+They take a set of str with the name of the attributes to include (omitting the rest) or to exclude (including the rest).
+
+This can be used as a quick shortcut if you have only one Pydantic model and want to remove some data from the output."""
+class Item(BaseModel):
+    name: str
+    description: str | None = None
+    price: float
+    tax: float = 10.5
+
+
+items = {
+    "foo": {"name": "Foo", "price": 50.2},
+    "bar": {"name": "Bar", "description": "The War fighters", "price": 62, "tax": 20.2},
+    "baz": {"name": "Baz", "description": "There goes my baz", "price": 50.2, "tax": 10.5,}
+}
+
+
+@app.get("/items/{item_id}/name", response_model=Item, response_model_include={"name", "description"})
+async def read_item_name(item_id: str):
+    return items[item_id]
+
+
+@app.get("/items/{item_id}/public", response_model=Item, response_model_exclude={"tax"})
+async def read_item_public_data(item_id: str):
+    return items[item_id]
+
+"""Using lists instead of sets¶
+If you forget to use a set and use a list or tuple instead, FastAPI will still convert it to a set and it will work correctly:"""
+
+class Murugan(BaseModel):
+    name: str
+    description: str | None = None
+    price: float
+    tax: float = 10.5
+
+
+products = {
+    "foo": {"name": "Foo", "price": 50.2},
+    "bar": {"name": "Bar", "description": "The War fighters", "price": 62, "tax": 20.2},
+    "baz": {"name": "Baz", "description": "There goes my baz", "price": 50.2, "tax": 10.5,}
+}
+
+
+@app.get("/Component/{comp_id}/identity", response_model=Murugan, response_model_include=["name", "description"])
+async def read_comp_name(item_id: str):
+    return products[item_id]
+
+
+@app.get("/Category/{cat_id}/domain", response_model=Murugan, response_model_exclude=["tax"])
+async def read_cat_domain_data(item_id: str):
+    return products[item_id]
