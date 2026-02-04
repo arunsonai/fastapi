@@ -3,6 +3,7 @@ You can define files to be uploaded by the client using File."""
 
 
 from fastapi import FastAPI, File, UploadFile
+from fastapi.responses import HTMLResponse
 from typing import Annotated
 
 app = FastAPI()
@@ -77,7 +78,10 @@ For example, inside of an async path operation function you can get the contents
 contents = await myfile.read()
 
 If you are inside of a normal def path operation function, you can access the UploadFile.file directly, for example:
-contents = myfile.file.read()"""
+contents = myfile.file.read()
+
+FastAPI's UploadFile inherits directly from Starlette's UploadFile, but adds some necessary parts to
+make it compatible with Pydantic and the other parts of FastAPI."""
 
 
 """What is "Form Data"¶
@@ -95,3 +99,101 @@ You can declare multiple File and Form parameters in a path operation, but you c
 that you expect to receive as JSON, as the request will have the body encoded using multipart/form-data instead of application/json.
 
 This is not a limitation of FastAPI, it's part of the HTTP protocol."""
+
+
+"""Optional File Upload¶
+You can make a file optional by using standard type annotations and setting a default value of None:"""
+
+@app.post("/data/")
+async def get_data(param_data: Annotated[bytes | None, File()] = None):
+    if not param_data:
+        return {"message" : "No file sent"}
+    return {"File Size" : len(param_data)}
+
+@app.post("/uploads/")
+async def upload_data(param_uploads: UploadFile | None = None):
+    if not upload_data:
+        return {"message" : "No file sent"}
+    return {"File Name" : param_uploads.filename}
+
+
+"""UploadFile with Additional Metadata¶
+You can also use File() with UploadFile, for example, to set additional metadata:"""
+
+@app.post("/addition/")
+async def get_add_data(add_data: Annotated[bytes, File(description="This is an additional information for File type")]):
+    if not add_data:
+        return {"message" : "No file sent"}
+    return {"File Size" : len(add_data)}
+
+async def get_upload_file(param_file: Annotated[UploadFile, File(description="Additional Info for UploadFile")]):
+    if not param_file:
+        return {"message" : "No file sent"}
+    return {"File Name" : param_file.filename}
+
+"""Multiple File Uploads¶
+It's possible to upload several files at the same time.
+
+They would be associated to the same "form field" sent using "form data".
+
+To use that, declare a list of bytes or UploadFile:"""
+
+@app.post("/multiples/")
+async def get_multiples(param_multiples: Annotated[list[bytes], File()]):
+    if not param_multiples:
+        return {"message" : "No files sent"}
+    return {"File Sizes" : [len(file) for file in param_multiples]}
+
+async def get_multiple_file(multiple_file: list[UploadFile]):
+    if not multiple_file:
+        return {"message" : "No files sent"}
+    return {"File Names" : [file.filename for file in multiple_file]}
+
+@app.get("/")
+async def main():
+    content = """
+<body>
+<form action="/files/" enctype="multipart/form-data" method="post">
+<input name="files" type="file" multiple>
+<input type="submit">
+</form>
+<form action="/uploadfiles/" enctype="multipart/form-data" method="post">
+<input name="files" type="file" multiple>
+<input type="submit">
+</form>
+</body>
+    """
+    return HTMLResponse(content=content) # Remember to import HTMLResponse from fastapi.responses
+
+
+"""Multiple File Uploads with Additional Metadata¶
+And the same way as before, you can use File() to set additional parameters, even for UploadFile:"""
+
+@app.post("/multipledata/")
+async def get_multiple_data(param_mul_data: Annotated[list[bytes], File(description="Multiple additional information")]):
+    if not param_mul_data:
+        return {"message" : "No files sent"}
+    return {"Files Sizes" : [len(mul_file) for mul_file in param_mul_data]}
+
+@app.post("/multipleuploads/")
+async def get_multiple_uploads(param_multiple_uploads: Annotated[list[UploadFile],
+                                                                 File(description="Multiple files with additional information")]):
+    if not param_multiple_uploads:
+        return {"message" : "No files sent"}
+    return {"File Names" : [files.filename for files in param_multiple_uploads]}
+
+@app.get("/")
+async def main():
+    content = """
+<body>
+<form action="/files/" enctype="multipart/form-data" method="post">
+<input name="files" type="file" multiple>
+<input type="submit">
+</form>
+<form action="/uploadfiles/" enctype="multipart/form-data" method="post">
+<input name="files" type="file" multiple>
+<input type="submit">
+</form>
+</body>
+    """
+    return HTMLResponse(content=content)
