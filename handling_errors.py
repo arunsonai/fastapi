@@ -30,3 +30,12 @@ async def add_headers(item_id: str):
             headers={"X-Error" : "There goes my error"}
         )
     return {"Item Details" : items[item_id]}
+
+"""Install custom exception handlers¶
+You can add custom exception handlers with the same exception utilities from Starlette.
+
+Let's say you have a custom exception UnicornException that you (or a library you use) might raise.
+
+And you want to handle this exception globally with FastAPI.
+
+You could add a custom exception handler with @app.exception_handler():"""
