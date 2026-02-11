@@ -84,4 +84,3 @@ The exception handler will receive a Request and the exception.
 async def HTTP_Validation_Error(request, exc):
     return PlainTextResponse(str(exc.detail), status_code = exc.status_code)
 
-@app.
