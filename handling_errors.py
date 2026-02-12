@@ -80,7 +80,21 @@ To override it, import the RequestValidationError and use it with @app.exception
 The exception handler will receive a Request and the exception.
 """
 
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request, exc):
+    return PlainTextResponse(str(exc.detail), status_code=exc.status_code)
+
 @app.exception_handler(RequestValidationError)
-async def HTTP_Validation_Error(request, exc):
-    return PlainTextResponse(str(exc.detail), status_code = exc.status_code)
+async def validation_exception_handler(request, exc: RequestValidationError):
+    message = "validation errors: "
+    for error in exc.errors():
+        message += f"field : {error['loc']}, Error : {error['msg']}"
+    return JSONResponse(message, status_code=400)
+
+@app.get("/validators/{item_id}")
+async def get_custom_error(item_id: int):
+    if item_id == 3:
+        raise HTTPException(status_code=400, detail="Nope! 3 is not right")
+    return {"Item Id" : item_id}
+
 
