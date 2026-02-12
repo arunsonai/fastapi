@@ -80,21 +80,22 @@ To override it, import the RequestValidationError and use it with @app.exception
 The exception handler will receive a Request and the exception.
 """
 
+# Remember to import HTTPException from starlette.exceptions as StarletteHTTPException
+# Remember to import PlainTextResponse from fastapi.responses
 @app.exception_handler(StarletteHTTPException)
-async def http_exception_handler(request, exc):
-    return PlainTextResponse(str(exc.detail), status_code=exc.status_code)
+async def http_validation_error(request, exc):
+    return PlainTextResponse(str(detail = exc.detail), status_code=exc.status_code)
 
+# Remember to import RequestValidationError from fastapi.exceptions
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc: RequestValidationError):
-    message = "validation errors: "
+    message = "Validation Error: "
     for error in exc.errors():
-        message += f"field : {error['loc']}, Error : {error['msg']}"
-    return JSONResponse(message, status_code=400)
+        message += f"\n field : {error['loc']}, Error : {error['msg']}"
+    return PlainTextResponse(message, status_code=400)
 
-@app.get("/validators/{item_id}")
-async def get_custom_error(item_id: int):
+@app.get("/exceptions/{item_id}")
+async def exception_handler(item_id: int):
     if item_id == 3:
-        raise HTTPException(status_code=400, detail="Nope! 3 is not right")
+        raise HTTPException(status_code=418, detail="I don't like 3")
     return {"Item Id" : item_id}
-
-
