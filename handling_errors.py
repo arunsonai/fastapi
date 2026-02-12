@@ -83,8 +83,8 @@ The exception handler will receive a Request and the exception.
 # Remember to import HTTPException from starlette.exceptions as StarletteHTTPException
 # Remember to import PlainTextResponse from fastapi.responses
 @app.exception_handler(StarletteHTTPException)
-async def http_validation_error(request, exc):
-    return PlainTextResponse(str(detail = exc.detail), status_code=exc.status_code)
+async def http_validation_error(request, exc: StarletteHTTPException):
+    return PlainTextResponse(str(exc.detail), status_code=exc.status_code)
 
 # Remember to import RequestValidationError from fastapi.exceptions
 @app.exception_handler(RequestValidationError)
@@ -94,7 +94,7 @@ async def validation_exception_handler(request, exc: RequestValidationError):
         message += f"\n field : {error['loc']}, Error : {error['msg']}"
     return PlainTextResponse(message, status_code=400)
 
-@app.get("/exceptions/{item_id}")
+@app.get("/lambda/{item_id}")
 async def exception_handler(item_id: int):
     if item_id == 3:
         raise HTTPException(status_code=418, detail="I don't like 3")
