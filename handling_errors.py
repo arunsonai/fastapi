@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse, PlainTextResponse
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -99,3 +100,16 @@ async def exception_handler(item_id: int):
     if item_id == 3:
         raise HTTPException(status_code=418, detail="I don't like 3")
     return {"Item Id" : item_id}
+
+
+"""Use the RequestValidationError body¶
+The RequestValidationError contains the body it received with invalid data.
+
+You could use it while developing your app to log the body and debug it, return it to the user, etc."""
+
+# Remember to import jsonable_encoder from fastapi.encoders
+# Also, need to import BaseModel from pydantic
+
+@app.exception_handler(RequestValidationError)
+async def http_validation_handler(request, exc: RequestValidationError):
+    return JSONResponse(content=jsonable_encoder({"detail" : exc.errors(), "body" : exc.body}))
