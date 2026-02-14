@@ -125,3 +125,42 @@ class BodyHandler(BaseModel):
 @app.post("/bodyhandlers/")
 async def get_body_handlers(item: BodyHandler):
     return {"Item" : item}
+
+
+"""FastAPI's HTTPException vs Starlette's HTTPException¶
+FastAPI has its own HTTPException.
+
+And FastAPI's HTTPException error class inherits from Starlette's HTTPException error class.
+
+The only difference is that FastAPI's HTTPException accepts any JSON-able data for the detail field, while Starlette's HTTPException only accepts strings for it.
+
+So, you can keep raising FastAPI's HTTPException as normally in your code.
+
+But when you register an exception handler, you should register it for Starlette's HTTPException.
+
+This way, if any part of Starlette's internal code, or a Starlette extension or plug-in, raises a Starlette HTTPException, your handler will be able to catch and handle it.
+
+In this example, to be able to have both HTTPExceptions in the same code, Starlette's exceptions is renamed to StarletteHTTPException:
+
+
+from starlette.exceptions import HTTPException as StarletteHTTPException
+Reuse FastAPI's exception handlers¶"""
+
+# Remember to import http_exception_handler, request_validation_exception_handler from fastapi.exception_handlers
+from fastapi.exception_handlers import http_exception_handler, request_validation_exception_handler
+
+@app.exception_handler(RequestValidationError)
+async def custom_http_exception_handler(Request, exc):
+    print(f"OMG! There's something wrong happened {repr(exc)}")
+    return await http_exception_handler(request=Request, exc=exc)
+
+@app.exception_handler(RequestValidationError)
+async def custom_http_exception_handler(Request, exc):
+    print(f"The client said it's wrong {exc}")
+    return await request_validation_exception_handler(request=Request, exc=exc)
+
+@app.get("/users/{item_id}")
+async def get_errors(item_id: int):
+    if item_id == 3:
+        raise HTTPException(status_code=418, detail="Nope! I don't like 3")
+    return {"Item ID" : item_id}
