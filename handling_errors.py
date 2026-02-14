@@ -3,6 +3,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse, PlainTextResponse
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from pydantic import BaseModel
 
 app = FastAPI()
 
@@ -48,7 +49,7 @@ class Unicorn_Exception(Exception):
     def __init__(self, name):
         self.name = name
 
-# Remember to import 'Request' from fastapi and 'JSONRespinse' from 'fastapi.requests'
+# Remember to import 'Request' from fastapi and 'JSONResponse' from 'fastapi.responses'
 @app.exception_handler(Unicorn_Exception)
 async def unicorn_exception_handler(request: Request, exc: Unicorn_Exception):
     return JSONResponse(
@@ -111,5 +112,16 @@ You could use it while developing your app to log the body and debug it, return 
 # Also, need to import BaseModel from pydantic
 
 @app.exception_handler(RequestValidationError)
-async def http_validation_handler(request, exc: RequestValidationError):
-    return JSONResponse(content=jsonable_encoder({"detail" : exc.errors(), "body" : exc.body}))
+async def request_validation_body(request, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=418,
+        content=jsonable_encoder({"Errors" : exc.errors(), "body" : exc.body})
+    )
+
+class BodyHandler(BaseModel):
+    name: str
+    size: int
+
+@app.post("/bodyhandlers/")
+async def get_body_handlers(item: BodyHandler):
+    return {"Item" : item}
