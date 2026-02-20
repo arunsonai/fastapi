@@ -69,6 +69,7 @@ async def get_items(item_id: str, item: Items) -> Items:
     stored_data = things[item_id]
     stored_item_model = Items(**stored_data)
     update_item = item.model_dump(exclude_unset=True)
-    update_model = Items(**stored_item_model.model_dump(), **update_item)
+    merged_data = Items(**stored_item_model.model_dump(), **update_item)
+    update_model = Items(**merged_data)
     things[item_id] = jsonable_encoder(update_model)
     return update_model
