@@ -44,12 +44,31 @@ things = {
     }
 }
 
-@app.get("/details/{id}")
+@app.get("/details/{id}", response_model=Items)
 async def updates(id: str):
     return things[id]
 
-@app.put("/conversions/{id}")
+@app.put("/conversions/{id}", response_model=Items)
 async def get_conversions(id: str, my_item: Items):
     json_conversion = jsonable_encoder(my_item)
     things[id] = json_conversion
     return things
+
+"""Using Pydantic's exclude_unset parameter¶
+If you want to receive partial updates, it's very useful to use the parameter exclude_unset in Pydantic's model's .model_dump().
+
+Like item.model_dump(exclude_unset=True).
+
+That would generate a dict with only the data that was set when creating the item model, excluding default values.
+
+Then you can use this to generate a dict with only the data that was set (sent in the request), omitting default values:"""
+
+
+@app.put("/items/{item_id}", response_model=Items)
+async def get_items(item_id: str, item: Items):
+    stored_data = things[item_id]
+    stored_item_model = Items(**stored_data)
+    update_item = item.model_dump(exclude_unset=True)
+    update_model = stored_item_model.model_copy(update_item)
+    things[item_id] = jsonable_encoder(update_model)
+    return update_model
