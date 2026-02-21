@@ -73,3 +73,27 @@ async def get_items(item_id: str, item: Items) -> Items:
     update_model = Items(**merged_data)
     things[item_id] = jsonable_encoder(update_model)
     return update_model
+
+
+"""Using Pydantic's update parameter¶
+Now, you can create a copy of the existing model using .model_copy(), and pass the update parameter with a dict containing the data to update.
+
+Like stored_item_model.model_copy(update=update_data)"""
+
+
+"""
+Partial updates recap¶
+In summary, to apply partial updates you would:
+
+(Optionally) use PATCH instead of PUT.
+1. Retrieve the stored data.
+2. Put that data in a Pydantic model.
+3. Generate a dict without default values from the input model (using exclude_unset).
+4. This way you can update only the values actually set by the user, instead of overriding values already
+    stored with default values in your model.
+5. Create a copy of the stored model, updating its attributes with the received partial updates (using the update parameter).
+6. Convert the copied model to something that can be stored in your DB (for example, using the jsonable_encoder).
+7. This is comparable to using the model's .model_dump() method again, but it makes sure (and converts) the values
+    to data types that can be converted to JSON, for example, datetime to str.
+8. Save the data to your DB.
+9. Return the updated model."""
