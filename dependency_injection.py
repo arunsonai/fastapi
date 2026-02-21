@@ -25,6 +25,26 @@ Create a dependency, or "dependable"¶
 Let's first focus on the dependency.
 
 It is just a function that can take all the same parameters that a path operation function can take:
-
-
 """
+
+
+from fastapi import FastAPI, Depends
+from typing import Annotated
+
+app = FastAPI()
+
+@app.get("/")
+async def get_root():
+    return {"message" : "Hello Dependency injection!"}
+
+def get_details(q : str, price: int=20, tax: float=66.6666):
+    return {"Quantity" : q, "Price Value" : price, "Tax Value" : tax}
+
+
+@app.get("/items/")
+async def get_items(commons: Annotated[dict, Depends(get_details)]):
+    return commons
+
+@app.get("/total/")
+async def get_total(similar: Annotated[dict, Depends(get_details)]):
+    return similar
