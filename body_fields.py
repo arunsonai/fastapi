@@ -1,6 +1,7 @@
-"""The same way you can declare additional validation and metadata in path operation function parameters with Query, Path and Body, you can declare validation and metadata inside of Pydantic models using Pydantic's Field.
+"""The same way you can declare additional validation and metadata in path operation function parameters with
+Query, Path and Body, you can declare validation and metadata inside of Pydantic models using Pydantic's 'Field'.
 
-Import Field¶
+Import 'Field'¶
 First, you have to import it:"""
 
 from fastapi import FastAPI
