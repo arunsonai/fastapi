@@ -19,7 +19,7 @@ You could create a first dependency ("dependable") like:"""
 
 #First dependency or dependable
 async def query_extractor(q: str | None = None):
-    return {"query" : q}
+    return q
 
 """It declares an optional query parameter q as a str, and then it just returns it.
 
@@ -35,7 +35,7 @@ of its own (so it is a "dependant" too):"""
 # Remember to import Cookie & Depends from fastapi
 async def query_or_cookie_extractor(q: Annotated[str, Depends(query_extractor)],
                                     last_query: Annotated[str | None , Cookie()] = None):
-    if q != None:
+    if not q:
         return last_query
     return q
 
@@ -51,5 +51,5 @@ If the user didn't provide any query q, we use the last query used, which we sav
 Then we can use the dependency with:"""
 
 @app.get("/items/")
-async def get_items(query_or_default: Annotated[str, Depends(query_or_cookie_extractor)]):
+async def get_items(query_or_default: Annotated[str | None, Depends(query_or_cookie_extractor)]):
     return {"Details" : query_or_default}
