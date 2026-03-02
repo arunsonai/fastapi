@@ -24,3 +24,12 @@ app = FastAPI(dependencies=[Depends(verify_key), Depends(verify_token)])
 @app.get("/")
 async def get_root():
     return {"message" : "Hello global_dependencies"}
+
+@app.get("/items/")
+async def read_items():
+    return [{"item": "Portal Gun"}, {"item": "Plumbus"}]
+
+
+@app.get("/users/")
+async def read_users():
+    return [{"username": "Karthikeyan"}, {"username": "Gughan"}]
