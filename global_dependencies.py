@@ -33,3 +33,10 @@ async def read_items():
 @app.get("/users/")
 async def read_users():
     return [{"username": "Karthikeyan"}, {"username": "Gughan"}]
+
+"""And all the ideas in the section about adding dependencies to the path operation decorators still apply,
+but in this case, to all of the path operations in the app.
+
+Dependencies for groups of path operations¶
+Later, when reading about how to structure bigger applications (Bigger Applications - Multiple Files), possibly
+with multiple files, you will learn how to declare a single dependencies parameter for a group of path operations."""
