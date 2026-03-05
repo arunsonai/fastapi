@@ -26,3 +26,10 @@ async def get_root():
 For example, you could use this to create a database session and close it after finishing.
 
 Only the code prior to and including the yield statement is executed before creating a response:"""
+
+async def get_db():
+    db = DBSession()
+    try:
+        yield db
+    finally:
+        db.close()
