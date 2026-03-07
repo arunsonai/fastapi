@@ -90,3 +90,28 @@ async def dependency_c(dep_b: Annotated[DepB, Depends(dependency_b)]):
         yield dep_c
     finally:
         dep_c.close(dep_b)
+
+"""And all of them can use yield.
+
+In this case dependency_c, to execute its exit code, needs the value from dependency_b (here named dep_b) to still be available.
+
+And, in turn, dependency_b needs the value from dependency_a (here named dep_a) to be available for its exit code.
+
+
+The same way, you could have some dependencies with yield and some other dependencies with return,
+and have some of those depend on some of the others.
+
+And you could have a single dependency that requires several other dependencies with yield, etc.
+
+You can have any combinations of dependencies that you want.
+
+FastAPI will make sure everything is run in the correct order."""
+
+
+"""Dependencies with yield and HTTPException¶
+You saw that you can use dependencies with yield and have try blocks that try to execute some code and then run some exit
+code after finally.
+
+You can also use except to catch the exception that was raised and do something with it.
+
+For example, you can raise a different exception, like HTTPException."""
