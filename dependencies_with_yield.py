@@ -59,7 +59,6 @@ For example, dependency_c can have a dependency on dependency_b, and dependency_
 def generate_dep_a():
     pass
 
-
 async def dependency_a():
     dep_a = generate_dep_a()
     try:
@@ -67,6 +66,11 @@ async def dependency_a():
     finally:
         dep_a.close()
 
+def generate_dep_b():
+    pass
+
+def DepA():
+    pass
 
 async def dependency_b(dep_a: Annotated[DepA, Depends(dependency_a)]):
     dep_b = generate_dep_b()
@@ -75,6 +79,10 @@ async def dependency_b(dep_a: Annotated[DepA, Depends(dependency_a)]):
     finally:
         dep_b.close(dep_a)
 
+def generate_dep_c():
+    pass
+def DepB():
+    pass
 
 async def dependency_c(dep_b: Annotated[DepB, Depends(dependency_b)]):
     dep_c = generate_dep_c()
