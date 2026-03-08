@@ -139,3 +139,30 @@ async def get_item(item_id: str, username: Annotated[str, Depends(get_username)]
     if item["owner"] != username:
         raise OwnerError(username)
     return item
+
+"""If you want to catch exceptions and create a custom response based on that, create a
+Custom Exception Handler (handling_errors.py in the same repo)."""
+
+"""Dependencies with yield and except¶
+If you catch an exception using except in a dependency with yield and you don't raise it again (or raise a new exception),
+FastAPI won't be able to notice there was an exception, the same way that would happen with regular Python:"""
+
+
+class InternalError(Exception):
+    pass
+
+async def get_username():
+    try:
+        yield "Murugan"
+    except InternalError:
+        print("I forgot tho say that, he is my everything!")
+
+@app.get("/items/{item_id}")
+async def get_item(item_id: str, username: Annotated[str, Depends(get_username)]):
+    if item_id == "portal-gun":
+        raise InternalError(f"The portal gun is too dangerous to be owned by {username}")
+    if item_id != "plumbus":
+        raise HTTPException(status_code=404, detail="Item not found, There is only a plumbus here")
+
+
+
