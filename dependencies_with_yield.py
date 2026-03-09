@@ -200,9 +200,71 @@ will be executed around the path operation function.
 "request": start the dependency before the path operation function that handles the request (similar to when using "function"),
 but end after the response is sent back to the client. So, the dependency function will be executed around the request and
 response cycle.
-If not specified and the dependency has yield, it will have a scope of "request" by default.
+If not specified and the dependency has yield, it will have a scope of "request" by default."""
 
-"""
 
+"""scope for sub-dependencies¶
+When you declare a dependency with a scope="request" (the default), any sub-dependency needs to also have a scope of "request".
+
+But a dependency with scope of "function" can have dependencies with scope of "function" and scope of "request".
+
+This is because any dependency needs to be able to run its exit code before the sub-dependencies, as it might need to
+still use them during its exit code."""
+
+
+"""Context Managers¶
+What are "Context Managers"¶
+"Context Managers" are any of those Python objects that you can use in a with statement.
+
+For example, you can use with to read a file:
+
+
+with open("./somefile.txt") as f:
+    contents = f.read()
+    print(contents)
+    
+
+Underneath, the open("./somefile.txt") creates an object that is called a "Context Manager".
+
+When the with block finishes, it makes sure to close the file, even if there were exceptions.
+
+When you create a dependency with yield, FastAPI will internally create a context manager for it, and combine it with
+some other related tools.
+
+Using context managers in dependencies with yield¶
+
+In Python, you can create Context Managers by creating a class with two methods: __enter__() and __exit__().
+
+You can also use them inside of FastAPI dependencies with yield by using with or async with statements inside of the
+dependency function:"""
+
+
+class MySuperContextManager:
+    def __init__(self):
+        self.db = DBSession()
+
+    def __enter__(self):
+        return self.db
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.db.close()
+
+
+async def get_db():
+    with MySuperContextManager() as db:
+        yield db
+
+
+"""Another way to create a context manager is with:
+
+@contextlib.contextmanager or
+@contextlib.asynccontextmanager
+using them to decorate a function with a single yield.
+
+That's what FastAPI uses internally for dependencies with yield.
+
+But you don't have to use the decorators for FastAPI dependencies (and you shouldn't).
+
+FastAPI will do it for you internally."""
 
 
