@@ -157,12 +157,52 @@ async def get_username():
     except InternalError:
         print("I forgot tho say that, he is my everything!")
 
-@app.get("/items/{item_id}")
+@app.get("/myitems/{item_id}")
 async def get_item(item_id: str, username: Annotated[str, Depends(get_username)]):
     if item_id == "portal-gun":
         raise InternalError(f"The portal gun is too dangerous to be owned by {username}")
     if item_id != "plumbus":
         raise HTTPException(status_code=404, detail="Item not found, There is only a plumbus here")
+
+"""Only one response will be sent to the client. It might be one of the error responses or it will be the response
+from the path operation.
+
+After one of those responses is sent, no other response can be sent.
+
+If you raise any exception in the code from the path operation function, it will be passed to the dependencies
+with yield, including HTTPException. In most cases you will want to re-raise that same exception or a new one
+from the dependency with yield to make sure it's properly handled."""
+
+"""Early exit and scope¶
+Normally the exit code of dependencies with yield is executed after the response is sent to the client.
+
+But if you know that you won't need to use the dependency after returning from the path operation function, you can use
+Depends(scope="function") to tell FastAPI that it should close the dependency after the path operation function returns, but
+before the response is sent."""
+
+
+def get_username():
+    try:
+        yield "Rick"
+    finally:
+        print("Cleanup up before response is sent")
+
+
+@app.get("/users/me")
+def get_user_me(username: Annotated[str, Depends(get_username, scope="function")]):
+    return username
+
+"""Depends() receives a 'scope' parameter that can be:
+
+"function": start the dependency before the path operation function that handles the request, end the dependency
+after the path operation function ends, but before the response is sent back to the client. So, the dependency function
+will be executed around the path operation function.
+"request": start the dependency before the path operation function that handles the request (similar to when using "function"),
+but end after the response is sent back to the client. So, the dependency function will be executed around the request and
+response cycle.
+If not specified and the dependency has yield, it will have a scope of "request" by default.
+
+"""
 
 
 
